@@ -1,0 +1,55 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run API",
+            "command": "npm run dev",
+            "options": {
+                "cwd": "${workspaceFolder}/client"
+            },
+            "type": "shell",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Serve API",
+            "command": "npm run dev",
+            "options": {
+                "cwd": "${workspaceFolder}/server"
+            },
+            "type": "shell",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run database",
+            "command": "docker compose -f docker-compose.yml up",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "type": "shell",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run API and Serve",
+            "dependsOn": [
+                "Run API",
+                "Serve API",
+                "Run database"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
