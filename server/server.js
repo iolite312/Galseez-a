@@ -42,23 +42,20 @@ app.post('/user/create', async (req, res) => {
 })
 app.post('/user/login', async (req, res) => {
   try {
-    const userSearch = await user.findOne({ userName: req.body.userName})
+    const userSearch = await user.findOne({ userName: req.body.userName })
     if (!userSearch) return res.status(404).json('Username not found')
     const passwordCheck = await bcrypt.compare(req.body.password, userSearch.password)
     if (!passwordCheck) return res.status(401).json('Unauthorized | Wrong password')
 
-    userSearch.updateOne(
-      {$set: {
-          token: uuidv4()
-        }
+    await userSearch.updateOne({
+      $set: {
+        token: uuidv4()
       }
-    )
-    .then(res.status(200).json(userSearch))
-    .catch(err => {
-      res.status(500).json('Internal server error')
-      console.error(err);
-    });
-  } catch(err) {
+    })
+
+    const updatedUser = await user.findOne({ userName: req.body.userName })
+    res.status(200).json(updatedUser)
+  } catch (err) {
     console.error(err)
     res.status(500).json('Internal server error')
   }
@@ -69,7 +66,7 @@ app.post('/user/validate', async (req, res) => {
     if (search._id == req.cookies.id && search.token == req.cookies.token) {
       return res.status(200).json('Authorized')
     }
-    res.status(401).json('Unauthorized')
+    res.status(401).clearCookie('token').clearCookie('id').json('Unauthorized')
   } catch(err) {
     console.error(err)
     res.status(500).json('Internal server error')
