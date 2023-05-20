@@ -3,11 +3,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
+const cookieParser = require('cookie-parser');
 const { user } = require('./models');
 
 const app = express();
 app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
+app.use(cookieParser()) // for parsing cookies
 
 const saltRounds = 10;
 
@@ -61,7 +63,16 @@ app.post('/user/login', async (req, res) => {
     res.status(500).json('Internal server error')
   }
 })
-app.post('user/validate', (req, res) => {
-
+app.post('/user/validate', async (req, res) => {
+  try {
+    const search = await user.findOne({ _id: req.cookies.id })
+    if (search._id == req.cookies.id && search.token == req.cookies.token) {
+      return res.status(200).json('Authorized')
+    }
+    res.status(401).json('Unauthorized')
+  } catch(err) {
+    console.error(err)
+    res.status(500).json('Internal server error')
+  }
 })
 app.listen(process.env.PORT, () => { console.log(`Listening on port: http://localhost:${process.env.PORT}`) })
