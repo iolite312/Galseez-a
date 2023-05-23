@@ -35,6 +35,9 @@ const markerSchema = new mongoose.Schema({
     }
 })
 const userSchema = new mongoose.Schema({
+    _id: {
+        type: String
+    },
     userName: {
         type: String,
         required: true

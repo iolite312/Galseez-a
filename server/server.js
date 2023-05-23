@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const cookieParser = require('cookie-parser');
-const { user } = require('./models');
+const { user, marker } = require('./models');
 
 const app = express();
 app.use(express.json()) // for parsing application/json
@@ -27,19 +27,30 @@ app.post('/user/create', async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(req.body.password, saltRounds); // Await the hashing process
 
-    const newUser = new user({
-      userName: req.body.userName,
-      password: hashedPassword, // Assign the hashed password
-      token: uuidv4()
-    });
+    let newUser;
+    if (req.body.id) {
+      newUser = new user({
+        _id: req.body.id,
+        userName: req.body.userName,
+        password: hashedPassword,
+        token: uuidv4()
+      });
+    } else {
+      newUser = new user({
+        _id: new mongoose.Types.ObjectId(),
+        userName: req.body.userName,
+        password: hashedPassword,
+        token: uuidv4()
+      });
+    }
 
     await newUser.save();
     res.status(201).json(newUser);
   } catch (err) {
-    console.error(err)
-    res.status(500).json('Internal server error')
+    console.error(err);
+    res.status(500).json('Internal server error');
   }
-})
+});
 app.post('/user/login', async (req, res) => {
   try {
     const userSearch = await user.findOne({ userName: req.body.userName })
@@ -70,6 +81,39 @@ app.post('/user/validate', async (req, res) => {
   } catch(err) {
     console.error(err)
     res.status(500).json('Internal server error')
+  }
+})
+app.post('/marker/create', async (req, res) => {
+  try {
+    const markerSearch = await marker.findOne({ 'object.name': req.body.object[0]})
+    if (markerSearch) return res.status(400).json(req.body.object[0] + ': already exists')
+
+    const createMarker = new marker({
+      lat: req.body.lat,
+      lng: req.body.lng,
+      object: {
+        name: req.body.object.name,
+        object: req.body.object.object,
+        icon: req.body.object.icon,
+        visible: req.body.object.visible,
+        friendOrFoe: req.body.object.friendOrFoe
+      },
+      user: req.body.id
+    })
+    await createMarker.save()
+    res.status(201).json(createMarker);
+  } catch {
+    console.error(err)
+    res.status(500).json('Internal server error')
+  }
+})
+app.post('/marker/get', async (req, res) => {
+  try {
+    const markerSearch = await marker.findOne({ _id: req.body._id})
+    if (!markerSearch) return res.status(400).json(req.body._id + ": doesn't exists")
+    res.status(200).json(markerSearch)
+  } catch(err) {
+
   }
 })
 app.listen(process.env.PORT, () => { console.log(`Listening on port: http://localhost:${process.env.PORT}`) })
