@@ -109,11 +109,14 @@ app.post('/marker/create', async (req, res) => {
 })
 app.post('/marker/get', async (req, res) => {
   try {
-    const markerSearch = await marker.findOne({ _id: req.body._id})
-    if (!markerSearch) return res.status(400).json(req.body._id + ": doesn't exists")
+    const markerSearch = await marker.findOne({ _id: req.body._id })
+    if (!markerSearch) return res.status(404).json(req.body._id + ": doesn't exists")
     res.status(200).json(markerSearch)
   } catch(err) {
-
+    console.error(err)
+    res.status(500).json('Internal server error')
+  }
+})
   }
 })
 app.listen(process.env.PORT, () => { console.log(`Listening on port: http://localhost:${process.env.PORT}`) })
