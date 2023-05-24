@@ -123,7 +123,6 @@ app.post('/marker/destroy', async (req, res) => {
     if (!markerSearch) return res.status(404).json(req.body._id + ": doesn't exists")
   
     const markerDelete = await marker.deleteOne({ _id: req.body._id })
-    console.log(markerDelete.deletedCount)
     if (markerDelete.deletedCount !== 1) return res.status(500).json('Marker was not deleted')
     res.status(200).json('Deletion successful')
   } catch(err) {
