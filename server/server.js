@@ -117,6 +117,18 @@ app.post('/marker/get', async (req, res) => {
     res.status(500).json('Internal server error')
   }
 })
+app.post('/marker/destroy', async (req, res) => {
+  try {
+    const markerSearch = await marker.findOne({ _id: req.body._id })
+    if (!markerSearch) return res.status(404).json(req.body._id + ": doesn't exists")
+  
+    const markerDelete = await marker.deleteOne({ _id: req.body._id })
+    console.log(markerDelete.deletedCount)
+    if (markerDelete.deletedCount !== 1) return res.status(500).json('Marker was not deleted')
+    res.status(200).json('Deletion successful')
+  } catch(err) {
+    console.error(err)
+    res.status(500).json('Internal server error')
   }
 })
 app.listen(process.env.PORT, () => { console.log(`Listening on port: http://localhost:${process.env.PORT}`) })
