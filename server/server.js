@@ -78,14 +78,14 @@ app.post('/user/validate', async (req, res) => {
       return res.status(200).json('Authorized')
     }
     res.status(401).clearCookie('token').clearCookie('id').json('Unauthorized')
-  } catch(err) {
+  } catch (err) {
     console.error(err)
     res.status(500).json('Internal server error')
   }
 })
 app.post('/marker/create', async (req, res) => {
   try {
-    const markerSearch = await marker.findOne({ 'object.name': req.body.object[0]})
+    const markerSearch = await marker.findOne({ 'object.name': req.body.object[0] })
     if (markerSearch) return res.status(400).json(req.body.object[0] + ': already exists')
 
     const createMarker = new marker({
@@ -112,7 +112,7 @@ app.post('/marker/get', async (req, res) => {
     const markerSearch = await marker.findOne({ _id: req.body._id })
     if (!markerSearch) return res.status(404).json(req.body._id + ": doesn't exists")
     res.status(200).json(markerSearch)
-  } catch(err) {
+  } catch (err) {
     console.error(err)
     res.status(500).json('Internal server error')
   }
@@ -121,11 +121,37 @@ app.post('/marker/destroy', async (req, res) => {
   try {
     const markerSearch = await marker.findOne({ _id: req.body._id })
     if (!markerSearch) return res.status(404).json(req.body._id + ": doesn't exists")
-  
+
     const markerDelete = await marker.deleteOne({ _id: req.body._id })
     if (markerDelete.deletedCount !== 1) return res.status(500).json('Marker was not deleted')
     res.status(200).json('Deletion successful')
-  } catch(err) {
+  } catch (err) {
+    console.error(err)
+    res.status(500).json('Internal server error')
+  }
+})
+app.post('/marker/update', async (req, res) => {
+  try {
+    const markerSearch = await marker.findOne({ _id: req.body._id })
+    if (!markerSearch) return res.status(404).json(req.body._id + ": doesn't exists")
+
+    await markerSearch.updateOne({
+      $set: {
+        lat: req.body.lat,
+        lng: req.body.lng,
+        object: {
+          name: req.body.object.name,
+          object: req.body.object.object,
+          icon: req.body.object.icon,
+          visible: req.body.object.visible,
+          friendOrFoe: req.body.object.friendOrFoe
+        },
+      }
+    })
+    const updatedMarker = await marker.findOne({ _id: req.body._id })
+    res.status(201).json(updatedMarker)
+
+  } catch (err) {
     console.error(err)
     res.status(500).json('Internal server error')
   }
