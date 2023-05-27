@@ -117,6 +117,16 @@ app.post('/marker/get', async (req, res) => {
     res.status(500).json('Internal server error')
   }
 })
+app.post('/marker/all', async (req, res) => {
+  try {
+    const markerSearch = await marker.find({})
+    if (!markerSearch) return res.status(404).json("No markers exists")
+    res.status(200).json(markerSearch)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json('Internal server error')
+  }
+})
 app.post('/marker/destroy', async (req, res) => {
   try {
     const markerSearch = await marker.findOne({ _id: req.body._id })
