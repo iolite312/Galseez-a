@@ -5,10 +5,7 @@ const objectSchema = new mongoose.Schema({
         type: String,
     },
     object: {
-        type: String,
-    },
-    icon: {
-        type: String,
+        type: Number,
     },
     visible: {
         type: Number,
@@ -30,7 +27,7 @@ const markerSchema = new mongoose.Schema({
     },
     object: [objectSchema],
     user: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'user'
     }
 })
