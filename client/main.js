@@ -1,5 +1,5 @@
 import './style.scss'
-import { setupMap } from './js/map'
+import { initializeMap } from './js/map';
 import { getCookie } from './js/cookie'
 
 const tokenCookie = getCookie('token')
@@ -11,5 +11,5 @@ if (!tokenCookie) {
 } else {
     document.querySelector('#app').innerHTML = `
     <div id="map" style="height: 100vh; width: 100vw;"></div>`
-    setupMap()
+    initializeMap()
 }
