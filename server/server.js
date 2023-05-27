@@ -85,8 +85,8 @@ app.post('/user/validate', async (req, res) => {
 })
 app.post('/marker/create', async (req, res) => {
   try {
-    const markerSearch = await marker.findOne({ 'object.name': req.body.object[0] })
-    if (markerSearch) return res.status(400).json(req.body.object[0] + ': already exists')
+    const markerSearch = await marker.findOne({ 'object.name': req.body.object.name })
+    if (markerSearch) return res.status(400).json(req.body.object.name + ': already exists')
 
     const createMarker = new marker({
       lat: req.body.lat,
@@ -94,7 +94,6 @@ app.post('/marker/create', async (req, res) => {
       object: {
         name: req.body.object.name,
         object: req.body.object.object,
-        icon: req.body.object.icon,
         visible: req.body.object.visible,
         friendOrFoe: req.body.object.friendOrFoe
       },
@@ -102,7 +101,7 @@ app.post('/marker/create', async (req, res) => {
     })
     await createMarker.save()
     res.status(201).json(createMarker);
-  } catch {
+  } catch(err) {
     console.error(err)
     res.status(500).json('Internal server error')
   }
@@ -119,14 +118,16 @@ app.post('/marker/get', async (req, res) => {
 })
 app.post('/marker/all', async (req, res) => {
   try {
-    const markerSearch = await marker.find({})
-    if (!markerSearch) return res.status(404).json("No markers exists")
-    res.status(200).json(markerSearch)
+    const markerSearch = await marker.find().populate({ path: 'user' }).exec();
+    if (!markerSearch || markerSearch.length === 0) {
+      return res.status(404).json("No markers exist");
+    }
+    res.status(200).json(markerSearch);
   } catch (err) {
-    console.error(err)
-    res.status(500).json('Internal server error')
+    console.error(err);
+    res.status(500).json('Internal server error');
   }
-})
+});
 app.post('/marker/destroy', async (req, res) => {
   try {
     const markerSearch = await marker.findOne({ _id: req.body._id })
@@ -152,7 +153,6 @@ app.post('/marker/update', async (req, res) => {
         object: {
           name: req.body.object.name,
           object: req.body.object.object,
-          icon: req.body.object.icon,
           visible: req.body.object.visible,
           friendOrFoe: req.body.object.friendOrFoe
         },
@@ -166,4 +166,6 @@ app.post('/marker/update', async (req, res) => {
     res.status(500).json('Internal server error')
   }
 })
-app.listen(process.env.PORT, () => { console.log(`Listening on port: http://localhost:${process.env.PORT}`) })
+
+const port = process.env.PORT || 3000
+app.listen(port, () => { console.log(`Listening on port: http://localhost:${port}`) })
