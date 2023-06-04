@@ -17,3 +17,17 @@ export function submitForm(userName, password) {
         console.log(err)
     })
 }
+export function validateUser(id, token) {
+    axiosClient.post('/user/validate', {
+        id: id,
+        token: token
+    }, { withCredentials: true })
+    .then(res => {
+        if (res.status !== 200) return alert('Unauhtorized')
+    })
+    .catch(err => {
+        console.log(err)
+        sessionStorage.setItem('Unauthorized', true)
+        window.location.reload()
+    }) 
+}
