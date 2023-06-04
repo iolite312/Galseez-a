@@ -10,6 +10,13 @@ const app = express();
 app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 app.use(cookieParser()) // for parsing cookies
+const server = require('http').createServer(app);
+const io = require('socket.io')(server, {
+  cors: {
+    origin: "http://localhost:5173"
+  },
+  maxHttpBufferSize: 1e8
+});
 
 const saltRounds = 10;
 
@@ -82,6 +89,17 @@ app.post('/user/validate', async (req, res) => {
     console.error(err)
     res.status(500).json('Internal server error')
   }
+})
+io.on('connection', (socket) => {
+  console.log('A new connection has appeard socketID: ' + socket.id + " on this timestamp: " + Date())
+  // socket.emit('placeMarker')
+  socket.on('sendMarker', (arg) => {
+    console.log(arg)
+    socket.broadcast.emit('placeMarker', arg)
+  })
+  socket.on('test', (data) => {
+    console.log(JSON.parse(data))
+  })
 })
 app.post('/marker/create', async (req, res) => {
   try {
@@ -168,4 +186,4 @@ app.post('/marker/update', async (req, res) => {
 })
 
 const port = process.env.PORT || 3000
-app.listen(port, () => { console.log(`Listening on port: http://localhost:${port}`) })
+server.listen(port, () => { console.log(`Listening on port: http://localhost:${port}`) })

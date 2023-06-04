@@ -1,5 +1,6 @@
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { sendMarker } from './socket';
 
 let map;
 let markers = [];
@@ -14,6 +15,7 @@ export function initializeMap() {
   map.on('click', (e) => {
     const { lat, lng } = e.latlng;
     createMarker(lat, lng);
+    sendMarker([lat, lng])
   });
 }
 
@@ -34,9 +36,9 @@ export function createMarker(lat, lng) {
     const removeButton = document.querySelector('.remove-marker');
     removeButton.addEventListener('click', () => {
       removeMarker(marker);
+      // console.log(markers)
     });
   });
-
   markers.push(marker);
 }
 

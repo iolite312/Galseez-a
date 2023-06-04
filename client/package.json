@@ -13,6 +13,6 @@
     "vite": "^4.3.2"
   },
   "dependencies": {
-    "leaflet": "^1.9.3"
+    "socket.io-client": "^4.6.2"
   }
 }
