@@ -5,12 +5,12 @@ export function submitForm(userName, password) {
         userName: userName,
         password: password
     })
-    .then(response => {
-        console.log(response.data)
-        document.cookie = "id=" + response.data._id
-        document.cookie = "token=" + response.data.token
-        document.cookie = "role=" + response.data.role
-        document.cookie = "name=" + response.data.userName
+    .then(res => {
+        console.log(res)
+        document.cookie = "id=" + res.data._id
+        document.cookie = "token=" + res.data.token
+        document.cookie = "role=" + res.data.role
+        document.cookie = "name=" + res.data.userName
         window.location.reload()
     })
     .catch(err => {
