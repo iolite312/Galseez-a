@@ -104,6 +104,16 @@ io.on('connection', (socket) => {
     console.log(arg)
     socket.broadcast.emit('placeMarker', arg)
   })
+  socket.on('allMarkers', () => {
+    getAllMarkers()
+    .then((markers) => {
+      socket.emit('allMarkers', markers);
+    })
+    .catch((error) => {
+      console.error(error);
+      socket.emit('allMarkers', 'Server Error');
+    });
+  }) 
 
   getAllMarkers()
     .then((markers) => {
@@ -113,6 +123,16 @@ io.on('connection', (socket) => {
       console.error(error);
       socket.emit('allMarkers', 'Server Error');
     });
+  socket.on('deleteMarker', (arg) => {
+    destroyMarker(arg)
+      .then((destroy) => {
+        socket.emit('RdeleteMarker', destroy)
+      })
+      .catch((err) => {
+        console.log(err)
+        socket.emit('RdeleteMarker', 'Server Error')
+      })
+  })
 })
 app.post('/marker/create', async (req, res) => {
   try {
@@ -159,6 +179,19 @@ async function getAllMarkers() {
     throw new Error('Server Error');
   }
 }
+async function destroyMarker(id) {
+  try {
+    const markerSearch = await marker.findOne({ _id: id })
+    if (!markerSearch) return 404
+
+    const markerDelete = await marker.deleteOne({ _id: id })
+    if (markerDelete.deletedCount !== 1) return 0
+    return 1
+  } catch (err) {
+    console.error(err)
+    throw new Error('Server Error');
+  }
+}
 //TODO still works but this endpoint will be DEPCRECATED
 app.post('/marker/all', async (req, res) => {
   try {
@@ -172,6 +205,7 @@ app.post('/marker/all', async (req, res) => {
     res.status(500).json('Internal server error');
   }
 });
+//TODO still works but this endpoint will be DEPCRECATED
 app.post('/marker/destroy', async (req, res) => {
   try {
     const markerSearch = await marker.findOne({ _id: req.body._id })

@@ -1,10 +1,11 @@
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { sendMarker } from './socket';
+import { destroyMarker, sendMarker } from './socket';
 import { getCookie } from './cookie';
 
 let map;
 let markers = [];
+let clickable = 0;
 
 export function initializeMap() {
   map = L.map('map').setView([51.505, -0.09], 13);
@@ -15,8 +16,9 @@ export function initializeMap() {
 
   map.on('click', (e) => {
     const { lat, lng } = e.latlng;
-    createMarker(lat, lng);
-    sendMarker([lat, lng])
+    if (clickable == 1) {
+      createMarker([lat, lng]);
+    }
   });
 }
 
@@ -67,8 +69,9 @@ export function createMarker(data) {
     const removeButton = document.querySelector('.remove-marker');
     const saveButton = document.querySelector('.save');
     removeButton.addEventListener('click', () => {
-      removeMarker(marker);
+      // removeMarker(marker);
       // console.log(markers)
+      destroyMarker(data[4])
     });
     saveButton.addEventListener('click', () => {
       sendMarker([data[0], data[1]])
@@ -84,4 +87,11 @@ export function removeMarker(marker) {
 
 export function getMarkers() {
   return markers;
+}
+export function clearMarkers() {
+  map.eachLayer(function (layer) {
+    if (layer instanceof L.Marker) {
+        map.removeLayer(layer);
+    }
+});
 }
