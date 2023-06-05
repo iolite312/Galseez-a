@@ -8,5 +8,11 @@ export function sendMarker(markers) {
     socket.emit('sendMarker', markers)
 }
 socket.on('placeMarker', (arg) => {
-    createMarker(arg[0], arg[1])
+    createMarker([arg[0], arg[1]])
+})
+socket.on('allMarkers', (data) => {
+    data.forEach(e => {
+        // console.log(e.user)
+        createMarker([e.lat, e.lng, e.object[0], e.user, e._id])
+    });
 })
