@@ -26,7 +26,7 @@ if (!tokenCookie) {
         });
     });
     if (sessionStorage.getItem("Unauthorized")) {
-        alert('Unautorized')
+        alert('Unauthorized')
         sessionStorage.removeItem("Unauthorized")
     }
 } else {
