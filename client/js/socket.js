@@ -13,7 +13,6 @@ socket.on('placeMarker', (arg) => {
 socket.on('allMarkers', (data) => {
     clearMarkers()
     data.forEach(e => {
-        // console.log(e.user)
         createMarker([e.lat, e.lng, e.object[0], e.user, e._id])
     });
 })
@@ -31,9 +30,7 @@ socket.on('RdeleteMarker', (data) => {
 function recreateMarker() {
     clearMarkers()
     socket.emit('allMarkers', (data) => {
-        console.log('socket')
         data.forEach(e => {
-            // console.log(e.user)
             createMarker([e.lat, e.lng, e.object[0], e.user, e._id])
         });
     })
