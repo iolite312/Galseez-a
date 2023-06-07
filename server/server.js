@@ -107,7 +107,7 @@ io.on('connection', (socket) => {
   socket.on('allMarkers', () => {
     getAllMarkers()
     .then((markers) => {
-      socket.emit('allMarkers', markers);
+      io.emit('allMarkers', markers);
     })
     .catch((error) => {
       console.error(error);
@@ -117,7 +117,7 @@ io.on('connection', (socket) => {
 
   getAllMarkers()
     .then((markers) => {
-      socket.emit('allMarkers', markers);
+      io.emit('allMarkers', markers);
     })
     .catch((error) => {
       console.error(error);
