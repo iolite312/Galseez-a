@@ -1,6 +1,6 @@
 // import 'dotenv/config'
 import './style.scss'
-import { initializeMap } from './js/map';
+import { click, initializeMap } from './js/map';
 import { getCookie } from './js/cookie';
 import { submitForm, validateUser } from './js/login';
 
@@ -31,7 +31,14 @@ if (!tokenCookie) {
     }
 } else {
     document.querySelector('#app').innerHTML = `
-    <div id="map" style="height: 100vh; width: 100vw;"></div>`
+    <button id='placeMarker'>Place Marker</button>
+    <div id="map" style="height: 97.3vh; width: 100vw;"></div>`
     initializeMap()
     validateUser(getCookie('id'), getCookie('token'))
+    document.addEventListener('DOMContentLoaded', () => {
+        const placeMarker = document.getElementById('placeMarker');
+        placeMarker.addEventListener('click', () => {
+            click();
+        });
+    });
 }

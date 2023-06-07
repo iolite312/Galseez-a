@@ -99,21 +99,27 @@ app.post('/user/validate', async (req, res) => {
 })
 io.on('connection', (socket) => {
   console.log('A new connection has appeard socketID: ' + socket.id + " on this timestamp: " + Date())
-  // socket.emit('placeMarker')
-  socket.on('sendMarker', (arg) => {
-    console.log(arg)
-    socket.broadcast.emit('placeMarker', arg)
+  socket.on('createMarker', (data) => {
+    createMarker(data)
+      .then((markers) => {
+        socket.emit('createMarker', markers)
+      })
+      .catch((error) => {
+        console.log(error)
+        socket.emit('createMarker', 0)
+      })
   })
+
   socket.on('allMarkers', () => {
     getAllMarkers()
-    .then((markers) => {
-      io.emit('allMarkers', markers);
-    })
-    .catch((error) => {
-      console.error(error);
-      socket.emit('allMarkers', 'Server Error');
-    });
-  }) 
+      .then((markers) => {
+        io.emit('allMarkers', markers);
+      })
+      .catch((error) => {
+        console.error(error);
+        socket.emit('allMarkers', 'Server Error');
+      });
+  })
 
   getAllMarkers()
     .then((markers) => {
@@ -134,6 +140,7 @@ io.on('connection', (socket) => {
       })
   })
 })
+//TODO still works but this endpoint will be DEPCRECATED
 app.post('/marker/create', async (req, res) => {
   try {
     const markerSearch = await marker.findOne({ 'object.name': req.body.object.name })
@@ -167,6 +174,29 @@ app.post('/marker/get', async (req, res) => {
     res.status(500).json('Internal server error')
   }
 })
+async function createMarker(data) {
+  try {
+    const markerSearch = await marker.findOne({ 'object.name': data[2] })
+    if (markerSearch) return 2
+
+    const createMarker = new marker({
+      lat: data[0],
+      lng: data[1],
+      object: {
+        name: data[2],
+        object: data[4],
+        visible: data[5],
+        friendOrFoe: data[3]
+      },
+      user: data[6]
+    })
+    await createMarker.save()
+    return 1
+  } catch (err) {
+    console.error(err)
+    throw new Error('Server Error')
+  }
+}
 async function getAllMarkers() {
   try {
     const markerSearch = await marker.find().populate({ path: 'user' }).exec();
