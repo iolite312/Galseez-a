@@ -85,6 +85,10 @@ export function createMarker(data) {
     const objectSelect = popup.getElement().querySelector('.object');
     const visibilitySelect = popup.getElement().querySelector('.visibility');
 
+    if (data[3]._id != getCookie('id')) {
+      removeButton.disabled = true
+    }
+
     removeButton.addEventListener('click', () => {
       destroyMarker(data[4]);
     });
@@ -110,6 +114,7 @@ export function createMarker(data) {
       const visibilitySelect = popup.getElement().querySelector('.visibility').value;
 
       const compiledData = [markerID.textContent, latitudeSpan.textContent, longitudeSpan.textContent, name.textContent, stateSelect, parseInt(objectSelect), parseInt(visibilitySelect)]
+      if (!compiledData[6] && data[2].visible) return alert('Je kan hem niet terug zetten');
       updateMarker(compiledData)
     });
 
