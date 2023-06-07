@@ -13,7 +13,7 @@ const objectSchema = new mongoose.Schema({
     },
     friendOrFoe: {
         type: String,
-        default: 'unkown',
+        default: 'Unknown',
     }
 })
 const markerSchema = new mongoose.Schema({
