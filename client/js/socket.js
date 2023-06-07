@@ -13,6 +13,15 @@ socket.on('createMarker', (data) => {
     socket.emit('allMarkers')
     alert('Marker Created')
 })
+export function updateMarker(data) {
+    socket.emit('updateMarker', data)
+}
+socket.on('updateMarker', (data) => {
+    if (data == 0) return alert('Marker failed')
+    if (data == 2) return alert('Marker failed')
+    socket.emit('allMarkers')
+    alert('Marker Updated')
+})
 socket.on('allMarkers', (data) => {
     clearMarkers()
     data.forEach(e => {

@@ -109,6 +109,16 @@ io.on('connection', (socket) => {
         socket.emit('createMarker', 0)
       })
   })
+  socket.on('updateMarker', (data) => {
+    updateMarker(data)
+      .then((markers) => {
+        socket.emit('updateMarker', markers)
+      })
+      .catch((error) => {
+        console.log(error)
+        socket.emit('updateMarker', 0)
+      })
+  })
 
   socket.on('allMarkers', () => {
     getAllMarkers()
@@ -197,6 +207,30 @@ async function createMarker(data) {
     throw new Error('Server Error')
   }
 }
+async function updateMarker(data) {
+  try {
+    const markerSearch = await marker.findOne({ _id: data[0] })
+    if (!markerSearch) return 2
+
+    await markerSearch.updateOne({
+      $set: {
+        lat: data[1],
+        lng: data[2],
+        object: {
+          name: data[3],
+          object: data[5],
+          visible: data[6],
+          friendOrFoe: data[4]
+        },
+      }
+    })
+    return 1
+
+  } catch (err) {
+    console.error(err)
+    throw new Error("Server Error")
+  }
+}
 async function getAllMarkers() {
   try {
     const markerSearch = await marker.find().populate({ path: 'user' }).exec();
@@ -249,6 +283,7 @@ app.post('/marker/destroy', async (req, res) => {
     res.status(500).json('Internal server error')
   }
 })
+//TODO still works but this endpoint will be DEPCRECATED
 app.post('/marker/update', async (req, res) => {
   try {
     const markerSearch = await marker.findOne({ _id: req.body._id })
