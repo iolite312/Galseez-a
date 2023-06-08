@@ -166,20 +166,35 @@ export function createMarker(data) {
                 mount.firstChild.remove();
               }
             });
-            user.appendChild(p);
-            user.appendChild(setbutton);
-            mount.appendChild(user);
+            if (element._id !== getCookie('id')) {
+              user.appendChild(p);
+              user.appendChild(setbutton);
+              mount.appendChild(user);
+            }
           });
-
+          let buttonCluster = document.createElement('div')
+          buttonCluster.classList.add('flex')
           let button = document.createElement('button');
-          button.textContent = 'close';
+          button.textContent = 'Close';
           button.addEventListener('click', () => {
             mount.classList.remove('open')
             while (mount.firstChild) {
               mount.firstChild.remove();
             }
           })
-          mount.appendChild(button);
+          let button2 = document.createElement('button')
+          button2.textContent = 'Clear order strike'
+          button2.addEventListener('click', () => {
+            mount.classList.remove('open')
+            while (mount.firstChild) {
+              mount.firstChild.remove();
+            }
+            orderStrike.value = ''
+            orderStrike.textContent = ''
+          })
+          buttonCluster.appendChild(button2);
+          buttonCluster.appendChild(button);
+          mount.appendChild(buttonCluster)
           mount.classList.add('open');
         })
         .catch((err) => {
@@ -250,7 +265,7 @@ export function localMarker(data) {
     </div>
   `;
 
-  marker.bindPopup(popupContent).openPopup();
+  marker.bindPopup(popupContent);
   marker.on('popupopen', () => {
     const removeButton = document.querySelector('.remove-marker');
     const saveButton = document.querySelector('.save');

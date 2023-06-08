@@ -67,10 +67,10 @@ app.post('/user/create', async (req, res) => {
 });
 app.post('/user/delete', async (req, res) => {
   try {
-    const userSearch = await marker.findOne({ _id: req.body._id })
+    const userSearch = await user.findOne({ _id: req.body._id })
     if (!userSearch) return res.status(404).json(req.body._id + ": doesn't exists")
 
-    const userDelete = await marker.deleteOne({ _id: req.body._id })
+    const userDelete = await user.deleteOne({ _id: req.body._id })
     if (userDelete.deletedCount !== 1) return res.status(500).json('User was not deleted')
     res.status(200).json('Deletion successful')
   } catch (err) {
