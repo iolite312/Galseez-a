@@ -93,19 +93,36 @@ export function createMarker(data) {
     if (data[5]) {
       if (data[5]._id == getCookie('id') && data[3]._id != getCookie('id')) {
         removeButton.disabled = false;
-        console.log('not blocked');
-      } else if (data[3]._id == getCookie('id')) {
+        console.log('not blocked yes data[5] check 5');
+      } else if (data[5]._id != getCookie('id') && data[3]._id == getCookie('id')) {
         removeButton.disabled = false;
-        console.log('not blocked');
+        console.log('not blocked yes data[5] check 3');
       } else {
         removeButton.disabled = true;
-        console.log('blocked');
+        console.log('blocked yes data[5] check 3');
       }
+    } else if (data[3]._id == getCookie('id')) {
+      removeButton.disabled = false;
+      console.log('not blocked no data[5]');
+    } else {
+      removeButton.disabled = true;
+      console.log('blocked no data[5]');
     }
+    
     if (data[3]._id != getCookie('id')) {
       strikeButton.disabled = true
     } else {
       strikeButton.disabled = false
+    }
+    if (data[3]._id != getCookie('id')) {
+      moveButton.disabled = true
+    } else {
+      moveButton.disabled = false
+    }
+    if (data[3]._id != getCookie('id')) {
+      updateButton.disabled = true
+    } else {
+      updateButton.disabled = false
     }
 
     if (data[5]) {
