@@ -65,6 +65,19 @@ app.post('/user/create', async (req, res) => {
     res.status(500).json('Internal server error');
   }
 });
+app.post('/user/delete', async (req, res) => {
+  try {
+    const userSearch = await marker.findOne({ _id: req.body._id })
+    if (!userSearch) return res.status(404).json(req.body._id + ": doesn't exists")
+
+    const userDelete = await marker.deleteOne({ _id: req.body._id })
+    if (userDelete.deletedCount !== 1) return res.status(500).json('User was not deleted')
+    res.status(200).json('Deletion successful')
+  } catch (err) {
+    console.error(err)
+    res.status(500).json('Internal server error')
+  }
+})
 app.post('/user/login', async (req, res) => {
   try {
     const userSearch = await user.findOne({ userName: req.body.userName })
@@ -161,40 +174,6 @@ io.on('connection', (socket) => {
       })
   })
 })
-//TODO still works but this endpoint will be DEPCRECATED
-app.post('/marker/create', async (req, res) => {
-  try {
-    const markerSearch = await marker.findOne({ 'object.name': req.body.object.name })
-    if (markerSearch) return res.status(400).json(req.body.object.name + ': already exists')
-
-    const createMarker = new marker({
-      lat: req.body.lat,
-      lng: req.body.lng,
-      object: {
-        name: req.body.object.name,
-        object: req.body.object.object,
-        visible: req.body.object.visible,
-        friendOrFoe: req.body.object.friendOrFoe
-      },
-      user: req.body.id
-    })
-    await createMarker.save()
-    res.status(201).json(createMarker);
-  } catch (err) {
-    console.error(err)
-    res.status(500).json('Internal server error')
-  }
-})
-app.post('/marker/get', async (req, res) => {
-  try {
-    const markerSearch = await marker.findOne({ _id: req.body._id })
-    if (!markerSearch) return res.status(404).json(req.body._id + ": doesn't exists")
-    res.status(200).json(markerSearch)
-  } catch (err) {
-    console.error(err)
-    res.status(500).json('Internal server error')
-  }
-})
 async function createMarker(data) {
   try {
     const markerSearch = await marker.findOne({ 'object.name': data[2] })
@@ -268,59 +247,6 @@ async function destroyMarker(id) {
     throw new Error('Server Error');
   }
 }
-//TODO still works but this endpoint will be DEPCRECATED
-app.post('/marker/all', async (req, res) => {
-  try {
-    const markerSearch = await marker.find().populate({ path: 'user' }).exec();
-    if (!markerSearch || markerSearch.length === 0) {
-      return res.status(404).json("No markers exist");
-    }
-    res.status(200).json(markerSearch);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json('Internal server error');
-  }
-});
-//TODO still works but this endpoint will be DEPCRECATED
-app.post('/marker/destroy', async (req, res) => {
-  try {
-    const markerSearch = await marker.findOne({ _id: req.body._id })
-    if (!markerSearch) return res.status(404).json(req.body._id + ": doesn't exists")
-
-    const markerDelete = await marker.deleteOne({ _id: req.body._id })
-    if (markerDelete.deletedCount !== 1) return res.status(500).json('Marker was not deleted')
-    res.status(200).json('Deletion successful')
-  } catch (err) {
-    console.error(err)
-    res.status(500).json('Internal server error')
-  }
-})
-//TODO still works but this endpoint will be DEPCRECATED
-app.post('/marker/update', async (req, res) => {
-  try {
-    const markerSearch = await marker.findOne({ _id: req.body._id })
-    if (!markerSearch) return res.status(404).json(req.body._id + ": doesn't exists")
-
-    await markerSearch.updateOne({
-      $set: {
-        lat: req.body.lat,
-        lng: req.body.lng,
-        object: {
-          name: req.body.object.name,
-          object: req.body.object.object,
-          visible: req.body.object.visible,
-          friendOrFoe: req.body.object.friendOrFoe
-        },
-      }
-    })
-    const updatedMarker = await marker.findOne({ _id: req.body._id })
-    res.status(201).json(updatedMarker)
-
-  } catch (err) {
-    console.error(err)
-    res.status(500).json('Internal server error')
-  }
-})
 
 const port = process.env.PORT || 3000
 server.listen(port, () => { console.log(`Listening on port: http://localhost:${port}`) })
