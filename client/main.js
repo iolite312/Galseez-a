@@ -32,7 +32,7 @@ if (!tokenCookie) {
 } else {
     document.querySelector('#app').innerHTML = `
     <button id='placeMarker'>Place Marker</button>
-    <div id="map" style="height: 97.3vh; width: 100vw;"></div>`
+    <div id='popupUser'></div>
     initializeMap()
     validateUser(getCookie('id'), getCookie('token'))
     document.addEventListener('DOMContentLoaded', () => {

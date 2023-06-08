@@ -85,6 +85,17 @@ app.post('/user/login', async (req, res) => {
     res.status(500).json('Internal server error')
   }
 })
+app.post('/user/all', async (req, res) => {
+  try {
+    const userSearch = await user.find()
+    if (!userSearch) return res.status(404).json('No users exists')
+
+    res.status(200).json(userSearch)
+  } catch(err) {
+    console.error(err)
+    res.status(500).json('Internal server error')
+  }
+})
 app.post('/user/validate', async (req, res) => {
   try {
     const search = await user.findOne({ _id: req.cookies.id })
@@ -222,6 +233,7 @@ async function updateMarker(data) {
           visible: data[6],
           friendOrFoe: data[4]
         },
+        orderStrike: data[7]
       }
     })
     return 1
@@ -233,7 +245,7 @@ async function updateMarker(data) {
 }
 async function getAllMarkers() {
   try {
-    const markerSearch = await marker.find().populate({ path: 'user' }).exec();
+    const markerSearch = await marker.find().populate({ path: 'user' }).populate({ path: 'orderStrike' }).exec();
     if (!markerSearch || markerSearch.length === 0) {
       return 'No markers';
     }

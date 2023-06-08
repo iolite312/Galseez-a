@@ -25,7 +25,7 @@ socket.on('updateMarker', (data) => {
 socket.on('allMarkers', (data) => {
     clearMarkers()
     data.forEach(e => {
-        createMarker([e.lat, e.lng, e.object[0], e.user, e._id])
+        createMarker([e.lat, e.lng, e.object[0], e.user, e._id, e.orderStrike])
     });
 })
 export function destroyMarker(id) {
@@ -43,7 +43,7 @@ function recreateMarker() {
     clearMarkers()
     socket.emit('allMarkers', (data) => {
         data.forEach(e => {
-            createMarker([e.lat, e.lng, e.object[0], e.user, e._id])
+            createMarker([e.lat, e.lng, e.object[0], e.user, e._id, e.orderStrike])
         });
     })
 }

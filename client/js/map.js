@@ -2,6 +2,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { destroyMarker, saveMarker, updateMarker } from './socket';
 import { getCookie } from './cookie';
+import axiosClient from './axios';
 
 let map;
 let markers = [];
@@ -40,10 +41,12 @@ export function createMarker(data) {
       Visible to others: <select class="visibility"><option value="1">Yes</option><option value="0">No</option></select><br>
       Latitude: <span class="latitude">${data[0]}</span><br>
       Longitude: <span class="longitude">${data[1]}</span><br>
+      Strike Order: <span id='orderStrike' style='margin: 0;' value=''></span><br>
       Created by: ${data[3].userName}<br>
       <button class="remove-marker">Remove</button>
       <button class="move">Move</button>
       <button class="update">Update</button>
+      <button class="orderStrike">Order Strike</button>
     </div>
   `;
 
@@ -79,14 +82,35 @@ export function createMarker(data) {
     const removeButton = popup.getElement().querySelector('.remove-marker');
     const updateButton = popup.getElement().querySelector('.update');
     const moveButton = popup.getElement().querySelector('.move');
+    const strikeButton = popup.getElement().querySelector('.orderStrike');
     const latitudeSpan = popup.getElement().querySelector('.latitude');
     const longitudeSpan = popup.getElement().querySelector('.longitude');
     const stateSelect = popup.getElement().querySelector('.state');
     const objectSelect = popup.getElement().querySelector('.object');
     const visibilitySelect = popup.getElement().querySelector('.visibility');
+    const orderStrike = popup.getElement().querySelector('#orderStrike');
 
+    if (data[5]) {
+      if (data[5]._id == getCookie('id') && data[3]._id != getCookie('id')) {
+        removeButton.disabled = false;
+        console.log('not blocked');
+      } else if (data[3]._id == getCookie('id')) {
+        removeButton.disabled = false;
+        console.log('not blocked');
+      } else {
+        removeButton.disabled = true;
+        console.log('blocked');
+      }
+    }
     if (data[3]._id != getCookie('id')) {
-      removeButton.disabled = true
+      strikeButton.disabled = true
+    } else {
+      strikeButton.disabled = false
+    }
+
+    if (data[5]) {
+      orderStrike.value = data[5]._id
+      orderStrike.textContent = data[5].userName
     }
 
     removeButton.addEventListener('click', () => {
@@ -103,6 +127,49 @@ export function createMarker(data) {
         moveButton.innerHTML = 'Stop moving';
       }
     });
+    strikeButton.addEventListener('click', () => {
+      axiosClient.post('/user/all')
+        .then((response) => {
+          const mount = document.querySelector('#popupUser');
+          const data = response.data;
+
+          data.forEach(element => {
+            let user = document.createElement('div');
+            user.classList.add('flexy');
+            let p = document.createElement('p');
+            p.setAttribute('value', element._id);
+            p.textContent = element.userName;
+            let setbutton = document.createElement('button');
+            setbutton.textContent = 'select';
+            setbutton.addEventListener('click', () => {
+              orderStrike.value = element._id
+              orderStrike.textContent = element.userName
+              mount.classList.remove('open')
+              while (mount.firstChild) {
+                mount.firstChild.remove();
+              }
+            });
+            user.appendChild(p);
+            user.appendChild(setbutton);
+            mount.appendChild(user);
+          });
+
+          let button = document.createElement('button');
+          button.textContent = 'close';
+          button.addEventListener('click', () => {
+            mount.classList.remove('open')
+            while (mount.firstChild) {
+              mount.firstChild.remove();
+            }
+          })
+          mount.appendChild(button);
+          mount.classList.add('open');
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    });
+
 
     updateButton.addEventListener('click', () => {
       const markerID = popup.getElement().querySelector('#markerID');
@@ -112,8 +179,9 @@ export function createMarker(data) {
       const stateSelect = popup.getElement().querySelector('.state').value;
       const objectSelect = popup.getElement().querySelector('.object').value;
       const visibilitySelect = popup.getElement().querySelector('.visibility').value;
+      const orderStrike = popup.getElement().querySelector('#orderStrike').value;
 
-      const compiledData = [markerID.textContent, latitudeSpan.textContent, longitudeSpan.textContent, name.textContent, stateSelect, parseInt(objectSelect), parseInt(visibilitySelect)]
+      const compiledData = [markerID.textContent, latitudeSpan.textContent, longitudeSpan.textContent, name.textContent, stateSelect, parseInt(objectSelect), parseInt(visibilitySelect), orderStrike]
       if (!compiledData[6] && data[2].visible) return alert('Je kan hem niet terug zetten');
       updateMarker(compiledData)
     });

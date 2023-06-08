@@ -29,7 +29,11 @@ const markerSchema = new mongoose.Schema({
     user: {
         type: String,
         ref: 'user'
-    }
+    },
+    orderStrike: {
+        type: String,
+        ref: 'user'
+    },
 })
 const userSchema = new mongoose.Schema({
     _id: {
