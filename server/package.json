@@ -9,7 +9,7 @@
     "express": "^4.19.2",
     "mongoose": "^7.5.0",
     "nodemon": "^2.0.22",
-    "socket.io": "^4.6.1",
+    "socket.io": "^4.6.2",
     "uuid": "^9.0.0"
   },
   "overrides": {
